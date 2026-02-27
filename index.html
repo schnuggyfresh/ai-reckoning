@@ -557,9 +557,10 @@ function showResults(){
   });
   h+=`</div>`;
   
-  h+=`<button class="btn" onclick="location.reload()">↻ Retake Assessment</button><br><br><br>`;
+  h+=`<button class="btn" onclick="location.reload()">↻ Retake Assessment</button> <button class="btn" style="background:#1a1a2e;border:1px solid #444;" onclick="showSurveyResults()">📊 See How Others Answered</button><br><br><br>`;
   
   document.getElementById('rArea').innerHTML=h;
+  submitResponse(arch, career, t);
   go('s-results');
   setTimeout(()=>{document.getElementById('dot').style.left=`${comp}%`;},300);
 }
@@ -746,6 +747,103 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&!document.getElementById('nextBtn').disabled) next();
   if(e.key==='Backspace'&&!document.getElementById('prevBtn').disabled) prev();
 });
+
+const WORKER='https://ai-reckoning-survey.s-schnugg.workers.dev';
+
+function submitResponse(archetype, career, scores){
+  try {
+    fetch(WORKER+'/submit',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({archetype, career, answers:ans, scores})
+    }).catch(()=>{});
+  } catch(e){}
+}
+
+function showSurveyResults(){
+  const s=document.getElementById('s-results');
+  s.innerHTML='<div style="text-align:center;padding:60px 20px;color:#aaa;">Loading results...</div>';
+  fetch(WORKER+'/results').then(r=>r.json()).then(data=>{
+    if(!data||data.total===0){
+      s.innerHTML='<h2>No responses yet — you might be first!</h2><button class="btn" onclick="location.reload()">↻ Back</button>';
+      return;
+    }
+    const total=data.total;
+    let h=`<div class="q-counter">${total} response${total!==1?'s':''} so far</div>`;
+    h+=`<h2 style="font-size:1.8em;margin-bottom:8px;">How Others See the AI Reckoning</h2>`;
+    h+=`<p style="color:#aaa;margin-bottom:40px;">Anonymous aggregate results. No names, no identifying information.</p>`;
+
+    // Archetype breakdown
+    const archetypeColors={'THE ABUNDANCE ACCELERATIONIST':'#22c55e','THE STRUCTURAL DISRUPTIONIST':'#ef4444','THE PRAGMATIC INSTITUTIONALIST':'#3b82f6','THE CALIBRATED SKEPTIC':'#f59e0b','THE MEASURED REALIST':'#8b5cf6','THE SYSTEMS THINKER':'#06b6d4'};
+    const archetypeShort={'THE ABUNDANCE ACCELERATIONIST':'Abundance Accelerationist','THE STRUCTURAL DISRUPTIONIST':'Structural Disruptionist','THE PRAGMATIC INSTITUTIONALIST':'Pragmatic Institutionalist','THE CALIBRATED SKEPTIC':'Calibrated Skeptic','THE MEASURED REALIST':'Measured Realist','THE SYSTEMS THINKER':'Systems Thinker'};
+    h+=`<h3 style="margin-bottom:16px;color:#e2e8f0;">Worldview Distribution</h3>`;
+    const sortedArch=Object.entries(data.archetypes).sort((a,b)=>b[1]-a[1]);
+    sortedArch.forEach(([arch,count])=>{
+      const pct=Math.round((count/total)*100);
+      const label=archetypeShort[arch]||arch.replace('THE ','');
+      const color=archetypeColors[arch]||'#6366f1';
+      h+=`<div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span style="color:#e2e8f0;font-size:0.9em;">${label}</span>
+          <span style="color:#aaa;font-size:0.85em;">${pct}% (${count})</span>
+        </div>
+        <div style="background:#1e1e2e;border-radius:6px;height:10px;overflow:hidden;">
+          <div style="background:${color};width:${pct}%;height:100%;border-radius:6px;transition:width 0.8s ease;"></div>
+        </div>
+      </div>`;
+    });
+
+    // Career breakdown
+    if(Object.keys(data.careers).length>0){
+      h+=`<h3 style="margin:32px 0 16px;color:#e2e8f0;">Who's Taking This</h3>`;
+      const sortedCareers=Object.entries(data.careers).sort((a,b)=>b[1]-a[1]).slice(0,8);
+      sortedCareers.forEach(([bucket,count])=>{
+        const pct=Math.round((count/total)*100);
+        h+=`<div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+            <span style="color:#e2e8f0;font-size:0.85em;">${bucket}</span>
+            <span style="color:#aaa;font-size:0.8em;">${pct}%</span>
+          </div>
+          <div style="background:#1e1e2e;border-radius:4px;height:7px;overflow:hidden;">
+            <div style="background:#6366f1;width:${pct}%;height:100%;border-radius:4px;"></div>
+          </div>
+        </div>`;
+      });
+    }
+
+    // Avg dimension scores
+    if(data.scores&&total>0){
+      h+=`<h3 style="margin:32px 0 16px;color:#e2e8f0;">Average Belief Scores</h3>`;
+      const dims=[
+        {k:'d',label:'Disruption Conviction',desc:'How much respondents believe AI causes rapid structural change'},
+        {k:'s',label:'Speed of Change',desc:'How fast respondents expect transformation to unfold'},
+        {k:'p',label:'Pain Expectation',desc:'How much economic dislocation respondents anticipate'},
+        {k:'a',label:'Adoption Friction',desc:'How much weight respondents give to barriers slowing AI adoption'},
+      ];
+      dims.forEach(({k,label,desc})=>{
+        const raw=data.scores[k]||0;
+        const pct=Math.max(0,Math.min(100,Math.round(((raw+10)/40)*100)));
+        h+=`<div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+            <span style="color:#e2e8f0;font-size:0.85em;font-weight:600;">${label}</span>
+            <span style="color:#aaa;font-size:0.8em;">${pct}/100</span>
+          </div>
+          <div style="color:#666;font-size:0.75em;margin-bottom:5px;">${desc}</div>
+          <div style="background:#1e1e2e;border-radius:4px;height:7px;overflow:hidden;">
+            <div style="background:#f59e0b;width:${pct}%;height:100%;border-radius:4px;"></div>
+          </div>
+        </div>`;
+      });
+    }
+
+    h+=`<br><button class="btn" onclick="location.reload()">↻ Retake Assessment</button>`;
+    s.innerHTML=h;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }).catch(e=>{
+    s.innerHTML=`<h2>Couldn't load results</h2><p style="color:#aaa;">${e.message}</p><button class="btn" onclick="location.reload()">↻ Back</button>`;
+  });
+}
+
 </script>
 </body>
 </html>
