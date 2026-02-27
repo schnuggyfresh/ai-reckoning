@@ -415,7 +415,7 @@ function render(){
   document.getElementById('prog').style.width=`${((cur+1)/Q.length)*100}%`;
   
   let h=`<div class="q-counter">Question ${q.id} of ${Q.length}</div>`;
-  h+=`<h2 class="q-text">${q.text}</h2>`;
+  h+=`<h2 class="q-text">${q.text}</h2><p style="color:#888;font-size:0.85em;margin:-10px 0 10px;">Select all that apply</p>`;
   
   // Primer
   h+=`<div class="primer"><div class="primer-label">${q.primer.label}</div>${q.primer.text}</div>`;
@@ -432,7 +432,8 @@ function render(){
   h+=`<div class="options">`;
   const L=['A','B','C','D'];
   q.options.forEach((o,i)=>{
-    h+=`<button class="opt ${sel===i?'sel':''}" onclick="pick(${i})"><span class="opt-letter">${L[i]}</span><span>${o.text}</span></button>`;
+    const selArr=Array.isArray(sel)?sel:(sel!==undefined?[sel]:[]);
+    h+=`<button class="opt ${selArr.includes(i)?'sel':''}" onclick="pick(${i})"><span class="opt-letter">${L[i]}</span><span>${o.text}</span></button>`;
   });
   h+=`</div>`;
   
@@ -440,11 +441,18 @@ function render(){
   document.getElementById('prevBtn').disabled=cur===0;
   const nb=document.getElementById('nextBtn');
   nb.textContent=cur===Q.length-1?'Continue →':'Next →';
-  nb.disabled=sel===undefined;
+  nb.disabled=!Array.isArray(sel)?sel===undefined:sel.length===0;
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function pick(i){ ans[Q[cur].id]=i; render(); }
+function pick(i){
+  const id=Q[cur].id;
+  let cur_sel=Array.isArray(ans[id])?ans[id]:(ans[id]!==undefined?[ans[id]]:[]);
+  const idx=cur_sel.indexOf(i);
+  if(idx>=0) cur_sel.splice(idx,1); else cur_sel.push(i);
+  ans[id]=cur_sel;
+  render();
+}
 
 function next(){
   if(cur<Q.length-1){ cur++; render(); }
@@ -460,8 +468,11 @@ function showResults(){
   Q.forEach(q=>{
     const c=ans[q.id];
     if(c!==undefined){
-      const sc=q.options[c].scores;
-      t.d+=sc.d; t.s+=sc.s; t.p+=sc.p; t.a+=sc.a;
+      const choices=Array.isArray(c)?c:[c];
+      choices.forEach(ci=>{
+        const sc=q.options[ci].scores;
+        t.d+=sc.d; t.s+=sc.s; t.p+=sc.p; t.a+=sc.a;
+      });
     }
   });
   
@@ -538,7 +549,10 @@ function showResults(){
   Q.forEach(q=>{
     const c=ans[q.id]; if(c===undefined) return;
     h+=`<div class="bd-item"><div class="bd-q">Q${q.id}: ${q.text}</div>`;
-    h+=`<div class="bd-a">${['A','B','C','D'][c]}. ${q.options[c].text}</div>`;
+    const choices2=Array.isArray(c)?c:[c];
+    choices2.forEach(ci=>{
+      h+=`<div class="bd-a">${['A','B','C','D'][ci]}. ${q.options[ci].text}</div>`;
+    });
     h+=`<div class="bd-insight">${q.insight}</div></div>`;
   });
   h+=`</div>`;
