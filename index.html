@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The AI Reckoning — Where Is This Going?</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0a0a0a;
+  --paper: #f5f2eb;
+  --warm: #ede8dd;
+  --accent: #c44b28;
+  --accent-light: #fdf8f6;
+  --muted: #8a8279;
+  --border: #d4cfc5;
+  --green: #2d6a4f;
+  --blue: #264653;
+  --gold: #b8860b;
+  --red: #9b2226;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); line-height:1.6; -webkit-font-smoothing:antialiased; }
+.noise { position:fixed; inset:0; opacity:.025; pointer-events:none; z-index:9999; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.wrap { max-width:720px; margin:0 auto; padding:0 24px; }
+.progress { position:fixed; top:0; left:0; height:3px; background:var(--accent); transition:width .5s cubic-bezier(.22,1,.36,1); z-index:100; }
+
+/* Header */
+header { padding:40px 0 28px; border-bottom:1px solid var(--border); margin-bottom:40px; }
+header .wrap { display:flex; justify-content:space-between; align-items:baseline; }
+.logo { font-family:'Instrument Serif',serif; font-size:1.05rem; }
+.date { font-size:.78rem; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+/* Sections */
+section { display:none; animation:fadeUp .6s ease-out; }
+section.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+/* Intro */
+.intro h1 { font-family:'Instrument Serif',serif; font-size:clamp(2.2rem,5vw,3.4rem); font-weight:400; line-height:1.1; letter-spacing:-.03em; margin-bottom:24px; }
+.intro h1 em { font-style:italic; color:var(--accent); }
+.intro-body { font-size:1.02rem; color:#3d3a35; max-width:580px; margin-bottom:20px; line-height:1.75; }
+.intro-meta { display:flex; gap:20px; font-size:.8rem; color:var(--muted); font-family:'JetBrains Mono',monospace; padding-top:14px; border-top:1px solid var(--border); margin-bottom:28px; }
+
+/* Cases */
+.cases-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:36px; }
+.case-card { padding:24px; border:1px solid var(--border); background:white; }
+.case-card h3 { font-family:'Instrument Serif',serif; font-size:1.15rem; margin-bottom:10px; font-weight:400; }
+.case-card.abundance h3 { color:var(--green); }
+.case-card.crisis h3 { color:var(--red); }
+.case-card p { font-size:.88rem; color:#3d3a35; line-height:1.6; }
+.case-card .source { font-size:.75rem; color:var(--muted); margin-top:10px; font-family:'JetBrains Mono',monospace; }
+
+.btn { display:inline-flex; align-items:center; gap:10px; padding:14px 32px; background:var(--ink); color:var(--paper); border:none; font-family:'DM Sans',sans-serif; font-size:.95rem; font-weight:500; cursor:pointer; transition:all .3s; }
+.btn:hover { background:var(--accent); transform:translateY(-1px); }
+
+/* Quiz */
+.q-counter { font-family:'JetBrains Mono',monospace; font-size:.76rem; color:var(--muted); margin-bottom:14px; letter-spacing:.05em; }
+.q-text { font-family:'Instrument Serif',serif; font-size:clamp(1.5rem,3.2vw,2rem); font-weight:400; line-height:1.25; letter-spacing:-.02em; margin-bottom:10px; }
+.q-context { font-size:.88rem; color:var(--muted); margin-bottom:16px; line-height:1.65; max-width:600px; }
+.q-context strong { color:var(--ink); font-weight:500; }
+
+/* Educational primers */
+.primer { background:white; border-left:3px solid var(--gold); padding:18px 20px; margin-bottom:24px; }
+.primer-label { font-family:'JetBrains Mono',monospace; font-size:.7rem; color:var(--gold); letter-spacing:.06em; text-transform:uppercase; margin-bottom:8px; }
+.primer p { font-size:.86rem; line-height:1.65; color:#3d3a35; }
+.primer p + p { margin-top:8px; }
+.primer .example { font-style:italic; color:var(--muted); }
+
+/* Debate cards */
+.debate { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; }
+.debate-card { padding:16px; border:1px solid var(--border); font-size:.84rem; line-height:1.55; }
+.debate-card.bull { border-left:3px solid var(--green); }
+.debate-card.bear { border-left:3px solid var(--red); }
+.debate-label { font-family:'JetBrains Mono',monospace; font-size:.68rem; letter-spacing:.05em; text-transform:uppercase; margin-bottom:6px; }
+.debate-card.bull .debate-label { color:var(--green); }
+.debate-card.bear .debate-label { color:var(--red); }
+.debate-source { font-size:.72rem; color:var(--muted); margin-top:6px; font-family:'JetBrains Mono',monospace; }
+
+.options { display:flex; flex-direction:column; gap:10px; margin-bottom:40px; }
+.opt { display:flex; align-items:flex-start; gap:14px; padding:18px 20px; background:white; border:1px solid var(--border); cursor:pointer; text-align:left; font-family:'DM Sans',sans-serif; font-size:.92rem; line-height:1.5; transition:all .25s; }
+.opt:hover { border-color:var(--ink); transform:translateX(3px); }
+.opt.sel { border-color:var(--accent); background:var(--accent-light); box-shadow:inset 3px 0 0 var(--accent); }
+.opt-letter { font-family:'JetBrains Mono',monospace; font-size:.73rem; font-weight:500; color:var(--muted); min-width:18px; padding-top:2px; flex-shrink:0; }
+.opt.sel .opt-letter { color:var(--accent); }
+
+.nav { display:flex; justify-content:space-between; padding:20px 0 60px; border-top:1px solid var(--border); }
+.nav-btn { padding:11px 24px; font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:500; cursor:pointer; transition:all .25s; border:1px solid var(--border); background:white; color:var(--ink); }
+.nav-btn:hover { border-color:var(--ink); }
+.nav-btn.pri { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.nav-btn.pri:hover { background:var(--accent); border-color:var(--accent); }
+.nav-btn:disabled { opacity:.3; pointer-events:none; }
+
+/* Career input */
+.career-section { margin-bottom:40px; }
+.career-input { width:100%; padding:14px 18px; font-family:'DM Sans',sans-serif; font-size:.95rem; border:1px solid var(--border); background:white; outline:none; transition:border .2s; }
+.career-input:focus { border-color:var(--ink); }
+.career-input::placeholder { color:var(--muted); }
+
+/* Results */
+.result-label { font-family:'JetBrains Mono',monospace; font-size:.76rem; color:var(--accent); letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
+.result-title { font-family:'Instrument Serif',serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:400; line-height:1.15; letter-spacing:-.02em; margin-bottom:20px; }
+.result-desc { font-size:1rem; line-height:1.75; color:#3d3a35; margin-bottom:32px; max-width:600px; }
+
+.spectrum-section { margin-bottom:36px; }
+.spectrum-title { font-family:'JetBrains Mono',monospace; font-size:.7rem; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; margin-bottom:8px; }
+.spectrum-bar { height:8px; background:linear-gradient(90deg,var(--green),var(--gold),var(--accent),var(--red)); position:relative; margin-bottom:6px; }
+.spectrum-dot { position:absolute; top:-6px; width:20px; height:20px; background:var(--ink); border:3px solid var(--paper); border-radius:50%; transform:translateX(-50%); box-shadow:0 2px 8px rgba(0,0,0,.15); transition:left 1s cubic-bezier(.22,1,.36,1); }
+.spectrum-ends { display:flex; justify-content:space-between; font-size:.73rem; color:var(--muted); }
+
+.scores { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:40px; }
+.score-card { background:white; border:1px solid var(--border); padding:20px; }
+.score-lbl { font-family:'JetBrains Mono',monospace; font-size:.68rem; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; margin-bottom:6px; }
+.score-val { font-family:'Instrument Serif',serif; font-size:1.8rem; line-height:1; margin-bottom:3px; }
+.score-note { font-size:.78rem; color:var(--muted); }
+
+/* Action plan */
+.plan-section { border-top:1px solid var(--border); padding-top:36px; margin-bottom:40px; }
+.plan-title { font-family:'Instrument Serif',serif; font-size:1.4rem; margin-bottom:20px; }
+.horizon { margin-bottom:24px; padding:20px; border:1px solid var(--border); background:white; }
+.horizon-label { font-family:'JetBrains Mono',monospace; font-size:.7rem; color:var(--accent); letter-spacing:.05em; text-transform:uppercase; margin-bottom:8px; }
+.horizon h4 { font-family:'Instrument Serif',serif; font-size:1.1rem; font-weight:400; margin-bottom:8px; }
+.horizon p { font-size:.88rem; line-height:1.65; color:#3d3a35; }
+.horizon ul { margin:8px 0 0 18px; font-size:.86rem; line-height:1.6; color:#3d3a35; }
+.horizon li { margin-bottom:4px; }
+
+/* Breakdown */
+.breakdown { border-top:1px solid var(--border); padding-top:36px; margin-bottom:40px; }
+.bd-item { padding:16px 0; border-bottom:1px solid var(--border); }
+.bd-q { font-weight:600; font-size:.86rem; margin-bottom:4px; }
+.bd-a { font-size:.86rem; color:var(--accent); font-weight:500; margin-bottom:6px; }
+.bd-insight { font-size:.82rem; color:var(--muted); line-height:1.6; }
+
+@media(max-width:640px) {
+  .cases-grid, .debate, .scores { grid-template-columns:1fr; }
+  header .wrap { flex-direction:column; gap:4px; }
+  .intro-meta { flex-direction:column; gap:6px; }
+}
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="progress" id="prog"></div>
+
+<header><div class="wrap"><div class="logo">The AI Reckoning — A Decision Framework</div><div class="date">By <strong>Scott Schnugg</strong> · Feb 2026</div></div></header>
+
+<div class="wrap">
+
+<!-- ══ INTRO ══ -->
+<section id="s-intro" class="active">
+<div class="intro">
+<h1>Where is AI <em>actually</em> taking us?</h1>
+<p class="intro-body">This week, Block laid off 40% of its workforce citing AI. Citrini Research's dystopian "2028 Global Intelligence Crisis" moved markets. Citadel published a point-by-point rebuttal. Howard Marks released a new memo. Matt Shumer's "Something Big Is Happening" crossed 80 million views.</p>
+<p class="intro-body">Everyone has a take. Few have a framework. This assessment gives you one — grounded in the best arguments on both sides, informed by behavioral economics, and tailored to your career.</p>
+<div class="intro-meta"><span>10 questions</span><span>~6 min</span><span>Personalized action plan</span></div>
+
+<h3 style="font-family:'Instrument Serif',serif; font-size:1.3rem; margin-bottom:16px; font-weight:400;">First, understand the two strongest cases.</h3>
+
+<div class="cases-grid">
+<div class="case-card abundance">
+<h3>The Case for Abundance</h3>
+<p>Every automation wave in history has created more jobs than it destroyed. When coal engines became efficient, total coal use went up (Jevons' paradox). When ATMs replaced tellers, banks opened more branches and hired more people. AI makes intelligence cheap — which expands what's economically possible. New industries, new services, new forms of demand we can't yet imagine. Andreessen: "Human wants and needs are endless, and entrepreneurs continuously create new goods and services." Citadel's rebuttal to Citrini notes software engineer demand is up 11% YoY and new business formation is expanding. Bloch's "2028 Intelligence Boom" models the same AI assumptions as Citrini but shows household purchasing power improving as costs collapse faster than incomes fall.</p>
+<div class="source">Andreessen, Citadel/Flight, Bloch, Jevons, Lieberman</div>
+</div>
+<div class="case-card crisis">
+<h3>The Case for Crisis</h3>
+<p>Previous waves automated muscles or narrow tasks. AI automates cognition itself — the one thing workers were supposed to retrain into. METR data shows AI task completion doubling every 7 months. Block just cut 4,000 workers from a position of strength, and the stock jumped 24%. Citrini's "Intelligence Displacement Spiral" describes a feedback loop: layoffs → less spending → more AI investment → more layoffs. "Ghost GDP" — output that shows up in national accounts but never circulates because machines spend zero on discretionary goods. Amodei warns 50% of entry-level white-collar jobs could go within 5 years. Shumer: "I describe what I want built, and it just appears. The finished thing."</p>
+<div class="source">Citrini/Shah, Shumer, Amodei, METR data</div>
+</div>
+</div>
+
+<button class="btn" onclick="go('s-quiz')">Begin Assessment <span>→</span></button>
+</div>
+</section>
+
+<!-- ══ QUIZ ══ -->
+<section id="s-quiz">
+<div id="qArea"></div>
+<div class="nav">
+<button class="nav-btn" id="prevBtn" onclick="prev()" disabled>← Back</button>
+<button class="nav-btn pri" id="nextBtn" onclick="next()" disabled>Next →</button>
+</div>
+</section>
+
+<!-- ══ CAREER ══ -->
+<section id="s-career">
+<div class="q-counter">FINAL STEP</div>
+<h2 class="q-text">What do you do for a living?</h2>
+<p class="q-context">Your result will include personalized guidance for your career and investments across three time horizons: immediate (0-6 months), intermediate (6-24 months), and long-term (2-5+ years).</p>
+<div class="career-section">
+<input type="text" class="career-input" id="careerInput" placeholder="e.g., Software engineer, Bank VP, Teacher, Stay-at-home parent, VC..." />
+</div>
+<button class="btn" onclick="showResults()">See My Results →</button>
+</section>
+
+<!-- ══ RESULTS ══ -->
+<section id="s-results"><div id="rArea"></div></section>
+
+<footer style="border-top:1px solid var(--border);padding:32px 0 48px;margin-top:40px;">
+<div class="wrap" style="text-align:center;">
+<p style="font-family:'Instrument Serif',serif;font-size:1.05rem;margin-bottom:6px;">Built by Scott Schnugg</p>
+<p style="font-size:.8rem;color:var(--muted);line-height:1.6;">Managing Director, PNC · Georgia Tech Dean's Advisory Board</p>
+<p style="font-size:.75rem;color:var(--muted);margin-top:12px;font-family:'JetBrains Mono',monospace;">Sources: Shumer, Citrini/Shah, Citadel/Flight, Bloch, Lieberman, Andreessen, Amodei, Marks · Not financial advice.</p>
+</div>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+const Q = [
+{
+  id:1,
+  text:"Block just laid off 40% of its workforce and the stock jumped 24%. What happens next?",
+  primer:{
+    label:"Decision Framework: Kahneman's Availability Heuristic",
+    text:`<p>Daniel Kahneman showed that humans judge probability by how easily examples come to mind — not by actual frequency. A single dramatic event (like Block's layoff) can distort our sense of what's normal or likely.</p><p class="example">Example: After a plane crash, people overestimate flying risk even though it's statistically safer than driving. After a viral layoff headline, we may overestimate how many companies will follow.</p><p>Ask yourself: Am I reacting to this specific event's magnitude, or to actual base rates of corporate behavior?</p>`
+  },
+  debate:{
+    bull:{text:"Citadel's Frank Flight notes software engineering demand is actually up 11% YoY. New business formation is expanding. Block doubled headcount during COVID and was overstaffed — this is a correction with AI framing.", source:"Citadel Securities macro report, Feb 2026"},
+    bear:{text:"Block's Dorsey: 'Intelligence tool capabilities are compounding faster every week.' The stock surging 24% on a 40% layoff signals markets reward headcount reduction. Every CEO just got permission.", source:"Block Q4 2025 earnings, Dorsey letter, Feb 26 2026"}
+  },
+  options:[
+    {text:"Domino effect. Every CEO just got permission. This is 2008 for white-collar jobs — cascading layoffs accelerate through 2026.", scores:{d:3,s:3,p:2,a:0}},
+    {text:"Copycats emerge, but most companies are too complex and risk-averse to move this fast. Enterprise AI adoption is a 3-5 year cycle.", scores:{d:1,s:1,p:0,a:1}},
+    {text:"Partly AI-washing. Block doubled headcount during COVID and was overstaffed. Wharton's Mollick says 50%+ efficiency gains from tools this new are implausible.", scores:{d:0,s:0,p:0,a:2}},
+    {text:"Accelerates adoption but triggers political backlash. Expect regulation on AI-driven layoffs within 18 months — history shows rapid labor displacement creates policy response.", scores:{d:2,s:2,p:1,a:2}}
+  ],
+  insight:"Ethan Mollick (Wharton) noted it's hard to justify 50%+ efficiency gains from tools this new. Block's stock had dropped 75% over five years — this is partly a correction. But the market signal to other CEOs is real: Salesforce, Shopify, and Klarna have all made similar moves. The question is whether this is a new pattern or the tail end of post-COVID correction with AI branding."
+},
+{
+  id:2,
+  text:"AI models improve ~10-20% per iteration, with releases every few months. What does a 10× more capable model look like?",
+  primer:{
+    label:"Decision Framework: Friedman's Efficient Markets + Exponential Intuition",
+    text:`<p>Milton Friedman argued markets are efficient information processors — prices reflect all known information. If markets are right, the stock market's current pricing of AI companies reflects the collective wisdom about AI's trajectory.</p><p>But Kahneman showed humans are terrible at intuiting exponential growth. We think linearly. The classic "lily pad" problem: if a lily pad doubles daily and covers a pond in 48 days, when is the pond half-covered? Day 47 — but most people guess day 24.</p><p class="example">METR data: AI task completion length is doubling every ~7 months. A year ago models could handle 10-minute tasks. Now it's nearly 5 hours. Extrapolate that curve.</p>`
+  },
+  debate:{
+    bull:{text:"Bloch: 'The physical world didn't get easier to automate just because the digital world did. Licensed electricians in major metros were pulling $140K with signing bonuses by 2027.' New capability creates new demand.", source:"Bloch, '2028 Global Intelligence Boom'"},
+    bear:{text:"Shumer: 'I describe what I want built, in plain English, and it just appears. Not a rough draft. The finished thing.' OpenAI's GPT-5.3 Codex documentation says it was 'instrumental in creating itself.'", source:"Shumer, 'Something Big Is Happening,' 80M+ views"}
+  },
+  options:[
+    {text:"Most knowledge work becomes automatable. Software, analysis, writing, law — all face 50%+ displacement within 5 years. Amodei's timeline is right.", scores:{d:3,s:3,p:2,a:0}},
+    {text:"Models plateau on reasoning and reliability. We get incredible copilots, not autonomous replacements. The last 20% of any task — judgment, context, relationships — is the hardest to automate.", scores:{d:0,s:0,p:0,a:2}},
+    {text:"Gains are real but the bottleneck shifts to integration. PwC's 2026 CEO Survey: only ~20% apply AI extensively to core functions. The gap between capability and deployment is measured in years.", scores:{d:1,s:1,p:0,a:1}},
+    {text:"10× means entirely new capabilities we can't predict. New industries will emerge that don't exist today. The right analogy isn't 'better tools' — it's the jump from telegraph to telephone.", scores:{d:2,s:2,p:-1,a:1}}
+  ],
+  insight:"'10-20% per iteration' is roughly directional on benchmarks, but capability jumps aren't linear in impact. GPT-3→4 was 'incremental' on benchmarks but qualitatively different. Amodei told Lex Fridman: 'We're starting to get to PhD level... the year before we were at undergraduate level.' The right mental model may be phase transitions, not smooth curves."
+},
+{
+  id:3,
+  text:"Jevons' Paradox says making a resource cheaper increases total consumption. Does this apply to AI and labor?",
+  primer:{
+    label:"Decision Framework: Kahneman's 'What You See Is All There Is' (WYSIATI)",
+    text:`<p>Kahneman identified a critical bias: we make judgments based only on available information and fail to consider what's missing. When we think about AI and jobs, we vividly see the jobs being eliminated (Block, Salesforce, Klarna). We cannot vividly see the jobs that don't exist yet.</p><p class="example">In 1990, no one could vividly imagine "social media manager" or "app developer" or "cloud architect." By 2020, these employed millions. WYSIATI means we systematically overweight the visible (job losses) and underweight the invisible (job creation).</p><p>Citadel's rebuttal: "Keynes underestimated the elasticity of human wants." When coal got cheaper, people didn't use less coal — they found entirely new uses for it.</p>`
+  },
+  debate:{
+    bull:{text:"Citadel: 'Rising productivity lowered costs and expanded the consumption frontier.' When intelligence gets cheap, people buy more of everything. Tom Lee of Fundstrat: farming went from 40% of jobs to 2%, but total employment grew.", source:"Citadel Securities, Fortune, Feb 2026"},
+    bear:{text:"Citrini: 'AI capabilities improved, companies needed fewer workers, layoffs increased, displaced workers spent less, margin pressure pushed firms to invest more in AI.' A negative feedback loop with no natural brake.", source:"Citrini, '2028 Global Intelligence Crisis'"}
+  },
+  options:[
+    {text:"Jevons applies perfectly. Cheaper intelligence creates demand for things we couldn't afford — personalized education, one-on-one healthcare, custom everything. Net employment increases.", scores:{d:0,s:0,p:-2,a:1}},
+    {text:"Jevons applies but with a painful gap. New jobs emerge eventually, but the transition takes a decade. Millions suffer without policy intervention. The 'eventually' does a lot of work.", scores:{d:2,s:2,p:1,a:1}},
+    {text:"Jevons doesn't apply because AI substitutes labor across too many domains simultaneously. Coal made engines better at one thing. AI replaces reasoning itself — the general-purpose input.", scores:{d:3,s:3,p:3,a:0}},
+    {text:"The paradox applies but gains accrue to capital, not labor. Total output rises while median wages stagnate. Abundance without shared prosperity — 'Ghost GDP' in Citrini's framing.", scores:{d:2,s:2,p:2,a:1}}
+  ],
+  insight:"This is the central economic question. Jevons' paradox is the strongest empirical argument for AI abundance — it's held for 160 years across every technology wave. The counter: previous waves automated narrow tasks, not cognition broadly. Whether 'this time is different' is literally the trillion-dollar question."
+},
+{
+  id:4,
+  text:"Banks' standard 5-year revolving credit facility assumes borrowers will exist in 5 years. Is that still safe?",
+  primer:{
+    label:"Decision Framework: Friedman on Price Signals",
+    text:`<p>Friedman argued that prices are the most important information system in economics — they encode knowledge that no individual possesses. When Block's stock jumps 24% on a 40% layoff, that's a price signal about where value is moving.</p><p>Credit markets are another price signal. If the 5-year revolver becomes riskier, spreads should widen. If banks don't reprice but the risk is real, that's a market inefficiency that could create systemic problems.</p><p class="example">Howard Marks (today's memo): 'In software alone, $150-250B in annual labor value could migrate to AI compute.' If you're lending to a SaaS company whose customers can now build their own tools, what's the collateral worth?</p>`
+  },
+  debate:{
+    bull:{text:"Most bank lending is secured by physical assets, contractual cash flows, and diversified portfolios. Tech lending is a small slice. Banks adapted to the internet, mobile, and cloud — they'll adapt to AI.", source:"Banking industry fundamentals"},
+    bear:{text:"Citrini models PE-backed SaaS companies (like Zendesk) defaulting as AI coding agents let clients build internal replacements. Private credit's $1.7T exposure to these businesses is the transmission mechanism.", source:"Citrini, '2028 Global Intelligence Crisis'"}
+  },
+  options:[
+    {text:"The 5-year revolver is becoming a faith-based instrument for tech borrowers. Lenders need to shorten duration, increase covenants, or dramatically reprice technology disruption risk.", scores:{d:3,s:3,p:1,a:1}},
+    {text:"Banks will adapt — AI-driven underwriting will assess disruption risk in real time. Credit products evolve but don't die. The product has survived multiple tech cycles.", scores:{d:1,s:1,p:-1,a:2}},
+    {text:"This only applies to pure software companies. Most borrowers have physical assets, contracts, and switching costs. The panic is concentrated, not systemic.", scores:{d:0,s:0,p:0,a:1}},
+    {text:"The bigger risk isn't individual defaults — it's correlation. If AI disrupts enough industries simultaneously, the diversification assumptions in bank portfolios break down.", scores:{d:2,s:2,p:2,a:0}}
+  ],
+  insight:"Howard Marks' new memo (today) separates the technology — which he calls 'very real' and 'more likely underestimated than overestimated' — from the investment implications. His key insight: 'near 100% probability AI will change the world but much less than 100% probability that investing in any given AI company or sector today will be profitable.' The credit question is the inverse: what's the probability your borrower survives the change?"
+},
+{
+  id:5,
+  text:"What is the most important thing most people don't understand about AI today?",
+  primer:{
+    label:"Decision Framework: Kahneman's Anchoring Effect",
+    text:`<p>People 'anchor' to the first piece of information they receive and adjust insufficiently from that starting point. If you tried ChatGPT in 2023 and found it underwhelming, you anchored there. You may not have updated enough.</p><p class="example">Shumer's viral post describes exactly this: 'If you haven't tried AI in the last few months, what exists today would be unrecognizable to you.' He's pointing at anchoring bias.</p><p>But anchoring works both ways. If you're immersed in AI Twitter and see dramatic demos daily, you may anchor to the frontier and overestimate average deployment.</p>`
+  },
+  debate:{
+    bull:{text:"Amodei told Fortune that 90% of code would be AI-written by end of 2025. True for Anthropic itself — but only 25-40% at other software companies. He may have 'a skewed sense for how quickly non-tech companies adopt.'", source:"Fortune, Davos Jan 2026"},
+    bear:{text:"METR data: autonomous task completion length is doubling every 7 months, possibly accelerating to 4 months. A year ago: 10 minutes. Now: nearly 5 hours. This is measurable, not hype.", source:"METR, cited in Shumer & Marks"}
+  },
+  options:[
+    {text:"The capabilities gap. What's in labs is 12-18 months ahead of production. Most people are forming opinions based on yesterday's models.", scores:{d:2,s:3,p:1,a:0}},
+    {text:"The cost curve. Intelligence, software development, and information retrieval approaching zero cost. This is more transformative than raw capability.", scores:{d:3,s:2,p:0,a:0}},
+    {text:"The limitations. AI hallucinates, can't reliably reason multi-step, fails in novel situations. People overestimate it as much as they underestimate it.", scores:{d:0,s:0,p:-1,a:2}},
+    {text:"The adoption gap. Technology is exponential; human behavior is linear. Even perfect AI is constrained by organizational inertia, regulation, and trust.", scores:{d:1,s:1,p:0,a:3}}
+  ],
+  insight:"All four are defensible. Marks' memo today calls it 'Level 3' — AI doing entire jobs autonomously, not just speeding them up. He says that distinction 'is what separates a $50 billion market from a multi-trillion dollar one.' The real tension: capabilities are underestimated by the public, overestimated by VCs, and adoption timelines are overestimated short-term, underestimated long-term."
+},
+{
+  id:6,
+  text:"COVID proved the government can pay people ~$600/week to stay home. What's the AI policy response?",
+  primer:{
+    label:"Decision Framework: Friedman vs. Kahneman on Human Nature",
+    text:`<p><strong>Friedman</strong> believed people respond rationally to incentives. Pay them not to work, they won't work. His critique of UBI was fundamentally about moral hazard and dependency.</p><p><strong>Kahneman</strong> showed something more nuanced: people don't just optimize for money. Loss aversion means losing a $80K job hurts roughly 2× as much as gaining $80K feels good. Status, identity, and purpose matter independently of income.</p><p class="example">The data split the difference. The SF Fed found the $600/week supplement had 'little or no effect on willingness to search for work.' But the supplement on top of state benefits gave a median 134% wage replacement — 68% of recipients earned more unemployed than employed. The Friedman concern about incentives is empirically weaker than expected, but the Kahneman insight about purpose remains powerful.</p>`
+  },
+  debate:{
+    bull:{text:"Mark Cuban: 'There were once 2M+ secretaries. They were the original white collar displacement. New companies with new jobs will come from AI and increase TOTAL employment.' Markets self-correct.", source:"Cuban on Bluesky, May 2025"},
+    bear:{text:"Amodei: 'Cancer is cured, the economy grows at 10%... and 20% of people don't have jobs.' He warns unemployment could spike to 10-20% as entry-level white-collar work disappears within 5 years.", source:"Amodei interview with Axios, May 2025"}
+  },
+  options:[
+    {text:"UBI becomes inevitable. COVID proved feasibility. Fund it with AI productivity gains. The question is when, not if.", scores:{d:2,s:2,p:1,a:2}},
+    {text:"Retraining, not transfers. People need purpose, not checks. Invest in reskilling for AI-adjacent roles. Friedman was right about moral hazard.", scores:{d:1,s:1,p:0,a:3}},
+    {text:"Government will be too slow. By the time Congress acts, markets will have already priced in the displacement. We learned nothing from 2008.", scores:{d:3,s:3,p:3,a:0}},
+    {text:"Messy patchwork. Some states experiment, others don't. The federal response will be reactive and insufficient, but not catastrophic.", scores:{d:1,s:1,p:1,a:1}}
+  ],
+  insight:"The $600/week was a supplement, not total — combined with state benefits (~$380/week avg), total was ~$980/week. Key nuance: the SF Fed found it didn't discourage job search, challenging Friedman's incentive concern. But it was temporary crisis spending, not a structural program. The transition from 'emergency' to 'permanent' is where politics breaks down."
+},
+{
+  id:7,
+  text:"Is now the best time in history to invest in biotech?",
+  primer:{
+    label:"Decision Framework: The Information Asymmetry Problem",
+    text:`<p>Kahneman showed that experts in uncertain domains (like venture capital) are typically no better than educated laypeople at prediction. The best approach in deep uncertainty is to identify structural advantages rather than predict outcomes.</p><p>The structural case for biotech: biology is becoming an information science. The same compute that powers LLMs can model protein folding (AlphaFold), simulate drug interactions, and parse genomic data. But — and this matters — the regulatory gauntlet hasn't changed. FDA approval still takes 10+ years.</p><p class="example">The last decade produced CRISPR (2012, Nobel 2020), mRNA vaccines, GLP-1 drugs (Ozempic, $50B+ market), CAR-T cell therapy, and in 2025, the world's first personalized CRISPR therapy for a child with CPS1 deficiency. Biotech has actually had massive breakthroughs — and AI is accelerating all of them.</p>`
+  },
+  debate:{
+    bull:{text:"AI-driven drug discovery, CRISPR, and mRNA collectively command $666B in disclosed funding across 1,200 companies. CRISPR's 5-year CAGR is 33.5%. Biology is becoming programmable.", source:"BioPharm International, Dec 2025"},
+    bear:{text:"AI-discovered drugs still have a >90% clinical trial failure rate. The biology is the hard part, not the compute. FDA timelines are the binding constraint, not the speed of discovery.", source:"FDA clinical trial data"}
+  },
+  options:[
+    {text:"Absolutely. Biology as information science + AI compute = unprecedented convergence. This is the biggest VC opportunity of the decade.", scores:{d:2,s:2,p:-2,a:1}},
+    {text:"Yes, but regulatory timelines haven't changed. AI accelerates discovery, not deployment. The 10+ year FDA cycle is the binding constraint.", scores:{d:1,s:0,p:0,a:2}},
+    {text:"Overhyped. AI-discovered drugs still fail 90%+ in trials. The biology is the hard part — you can't shortcut clinical reality with compute.", scores:{d:0,s:0,p:0,a:2}},
+    {text:"Best time for biotech VC, but also most dangerous. If AI commoditizes discovery, the moat shifts to manufacturing, distribution, and regulatory capture.", scores:{d:2,s:1,p:0,a:2}}
+  ],
+  insight:"The last decade has seen historic biotech breakthroughs — calling it stagnant undersells reality. But the thesis that AI + compute makes this the best time for biotech investing is widely shared. Eli Lilly is building a $6B peptide manufacturing plant. AstraZeneca committed $50B to US facilities. The capital is following the thesis."
+},
+{
+  id:8,
+  text:"What constrains AI's near-term impact the most?",
+  primer:{
+    label:"Decision Framework: The Planning Fallacy",
+    text:`<p>Kahneman showed that people consistently overestimate their ability to complete projects on time and underestimate obstacles. This applies equally to tech adoption: 'We'll have AI agents handling everything by Q3' is as common as 'the renovation will take 6 weeks.'</p><p>Marks' new memo distinguishes between AI reaching 'Level 3' (autonomous task execution) — which is happening — and whether that capability translates into economy-wide transformation, which faces physical, institutional, and political constraints.</p><p class="example">A single GPT-4 training run uses as much electricity as ~1,000 US homes for a year. Microsoft, Amazon, and Google have committed $150B+ to AI infrastructure. But data centers take years to build and require massive power capacity.</p>`
+  },
+  debate:{
+    bull:{text:"Constraints are temporary. Efficiency gains (distillation, quantization) are also compounding. What costs $10 today cost $100 a year ago. Capital is flowing at unprecedented scale.", source:"Multiple sources"},
+    bear:{text:"PwC's 2026 CEO Survey: only ~20% are applying AI extensively to core functions. Shopify's AI mandate took 18 months from policy to operational change. Even vanguard companies need 18-36 months.", source:"PwC, fact-check of Shumer"}
+  },
+  options:[
+    {text:"Energy and compute infrastructure. Power grid constraints are the speed limit. You can't run 10× models on today's data centers.", scores:{d:0,s:0,p:-1,a:1}},
+    {text:"Organizational inertia. Procurement, security, compliance, training — enterprise adoption is a multi-year cycle. The technology outpaces the institutions.", scores:{d:0,s:0,p:0,a:2}},
+    {text:"Regulation and liability. Who's liable when AI makes a medical mistake? A lending error? High-stakes adoption requires legal frameworks that don't exist yet.", scores:{d:0,s:0,p:0,a:3}},
+    {text:"Nothing meaningful. Constraints slow the timeline by 1-2 years at most. Competitive pressure forces adoption whether organizations are ready or not.", scores:{d:3,s:3,p:1,a:0}}
+  ],
+  insight:"Power constraints are real — but Marks notes that demand for AI is 'driving substantial revenue growth, justifying the capital expenditures.' The answer is probably: constraints slow the timeline by 1-3 years but don't change the direction. As Bloch wrote: 'The physical world didn't get easier to automate just because the digital world did.'"
+},
+{
+  id:9,
+  text:"AI companies are building connectors into existing software rather than replacing it outright. What's the strategy?",
+  primer:{
+    label:"Decision Framework: Kahneman's System 1 vs. System 2",
+    text:`<p>Kahneman distinguished fast, intuitive thinking (System 1) from slow, deliberate analysis (System 2). Most business strategy operates on System 1: pattern-match to familiar categories.</p><p>The connector strategy defies easy pattern-matching. Is it: (a) a distribution play, like Windows bundling IE? (b) a value extraction play, like a toll booth? (c) a trojan horse, like Google offering free apps while building an advertising monopoly? Your System 1 will pick one quickly. Your System 2 should consider all three — and the possibility that it's something new entirely.</p>`
+  },
+  debate:{
+    bull:{text:"IBM fell 13% when Anthropic's Claude demonstrated COBOL capabilities. Cybersecurity stocks fell when Claude found security flaws. The AI layer is already repricing the software below it.", source:"Market data, Feb 2026"},
+    bear:{text:"Citadel: AI integration makes existing software more valuable, not less. 'Demand for software engineers is rising rapidly.' The connector strategy is symbiotic, not parasitic.", source:"Citadel Securities rebuttal"}
+  },
+  options:[
+    {text:"Smart platform play. AI companies are extracting rent from companies they could have killed, but chose not to — yet. As models improve, they'll capture more value. The host software becomes the commodity.", scores:{d:3,s:2,p:1,a:0}},
+    {text:"Symbiosis. AI makes existing software more valuable. Microsoft Office + Copilot is the model — the incumbents benefit too. Everyone's pie grows.", scores:{d:0,s:1,p:-1,a:1}},
+    {text:"Temporary truce. Connectors build distribution while AI companies develop the capability to replace tools entirely. This is a trojan horse with a 2-3 year fuse.", scores:{d:2,s:2,p:1,a:0}},
+    {text:"The real disruption isn't who captures value — it's that friction between systems is collapsing. Interoperability itself is transformative, regardless of which layer wins.", scores:{d:1,s:1,p:0,a:1}}
+  ],
+  insight:"The deeper insight is about layer economics: if the AI layer becomes the primary interface for work, underlying software commoditizes over time. IBM's 13% drop on Claude's COBOL capabilities is a real-time example. But this is a multi-year process, not a cliff."
+},
+{
+  id:10,
+  text:"Kahneman showed humans systematically misjudge risk. Which bias is most distorting the AI conversation?",
+  primer:{
+    label:"Meta-Framework: Apply The Biases To Yourself",
+    text:`<p>Here's the irony Kahneman himself acknowledged: knowing about cognitive biases doesn't make you immune to them. You are subject to every bias we've discussed, right now, including while answering these questions.</p><p><strong>If you lean 'abundance':</strong> You may be subject to optimism bias and the tendency to weight historical analogies (past tech transitions) over unprecedented characteristics of this one.</p><p><strong>If you lean 'crisis':</strong> You may be subject to availability bias (dramatic demos, layoff headlines) and catastrophizing from vivid scenarios.</p><p>Friedman and Kahneman are in tension. Friedman's efficient markets assume rational actors processing information correctly. Kahneman proved they don't. Your belief in both suggests you think markets eventually get it right, but humans are systematically irrational in the short term. That's probably correct — and it means the transition period is where the danger (and opportunity) lives.</p>`
+  },
+  debate:{
+    bull:{text:"Lieberman ('2028 Intelligence Miracle'): 'Everything the pessimists said would happen, happened. And here we are with 3.8% unemployment and new all-time highs. The physical world didn't get easier to automate.'", source:"Lieberman, Substack, Feb 2026"},
+    bear:{text:"Citrini: 'Ghost GDP — output that shows up in national accounts but never circulates through the real economy. Machines spend zero dollars on discretionary goods.'", source:"Citrini, '2028 Global Intelligence Crisis'"}
+  },
+  options:[
+    {text:"Normalcy bias dominates. Most people can't imagine their job changing fundamentally, so they anchor to the status quo until it's too late. The adjustment will be abrupt.", scores:{d:3,s:3,p:2,a:0}},
+    {text:"Availability bias is creating panic. Viral posts and layoff headlines distort probability. The boring truth: most work changes gradually. Noise overwhelms signal.", scores:{d:0,s:0,p:-2,a:2}},
+    {text:"Loss aversion means we overweight jobs lost and underweight jobs created. This creates bad policy — protectionism rather than adaptation. We regulate out of fear.", scores:{d:1,s:1,p:0,a:2}},
+    {text:"The planning fallacy means every executive overestimates their AI strategy. We'll see a wave of failed transformations before successful ones. Implementation is harder than the demos suggest.", scores:{d:1,s:0,p:1,a:2}}
+  ],
+  insight:"The Citrini-Citadel-Bloch-Lieberman debate this week is itself an experiment in these biases playing out in real time. Citrini's scenario moved actual stock prices. Citadel's rebuttal used data. Bloch's optimistic mirror used the same assumptions with opposite conclusions. Markets are processing all of this simultaneously — which is exactly what Friedman would predict, and exactly what Kahneman would say produces suboptimal individual decisions."
+}
+];
+
+let cur=0, ans={}, career='';
+
+function go(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='s-quiz') render();
+}
+
+function render(){
+  const q=Q[cur];
+  const sel=ans[q.id];
+  document.getElementById('prog').style.width=`${((cur+1)/Q.length)*100}%`;
+  
+  let h=`<div class="q-counter">Question ${q.id} of ${Q.length}</div>`;
+  h+=`<h2 class="q-text">${q.text}</h2>`;
+  
+  // Primer
+  h+=`<div class="primer"><div class="primer-label">${q.primer.label}</div>${q.primer.text}</div>`;
+  
+  // Debate
+  h+=`<div class="debate">`;
+  h+=`<div class="debate-card bull"><div class="debate-label">The Abundance Case</div>${q.debate.bull.text}<div class="debate-source">${q.debate.bull.source}</div></div>`;
+  h+=`<div class="debate-card bear"><div class="debate-label">The Crisis Case</div>${q.debate.bear.text}<div class="debate-source">${q.debate.bear.source}</div></div>`;
+  h+=`</div>`;
+  
+  // Context if exists
+  if(q.context) h+=`<p class="q-context">${q.context}</p>`;
+  
+  h+=`<div class="options">`;
+  const L=['A','B','C','D'];
+  q.options.forEach((o,i)=>{
+    h+=`<button class="opt ${sel===i?'sel':''}" onclick="pick(${i})"><span class="opt-letter">${L[i]}</span><span>${o.text}</span></button>`;
+  });
+  h+=`</div>`;
+  
+  document.getElementById('qArea').innerHTML=h;
+  document.getElementById('prevBtn').disabled=cur===0;
+  const nb=document.getElementById('nextBtn');
+  nb.textContent=cur===Q.length-1?'Continue →':'Next →';
+  nb.disabled=sel===undefined;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pick(i){ ans[Q[cur].id]=i; render(); }
+
+function next(){
+  if(cur<Q.length-1){ cur++; render(); }
+  else go('s-career');
+}
+function prev(){ if(cur>0){ cur--; render(); } }
+
+function showResults(){
+  career=document.getElementById('careerInput').value.trim()||'Professional';
+  document.getElementById('prog').style.width='100%';
+  
+  let t={d:0,s:0,p:0,a:0};
+  Q.forEach(q=>{
+    const c=ans[q.id];
+    if(c!==undefined){
+      const sc=q.options[c].scores;
+      t.d+=sc.d; t.s+=sc.s; t.p+=sc.p; t.a+=sc.a;
+    }
+  });
+  
+  const norm=k=>Math.max(0,Math.min(100,Math.round(((t[k]+10)/40)*100)));
+  const D=norm('d'), S=norm('s'), P=norm('p'), A=norm('a');
+  const comp=Math.round((D+S)/2);
+  
+  let arch,title,desc;
+  if(D>=65&&P>=55){
+    arch="THE STRUCTURAL DISRUPTIONIST";
+    title="You see the wave — and the wreckage ahead";
+    desc=`You believe AI represents a fundamental restructuring of economic value creation, and that the transition will be fast, painful, and poorly managed. You resonate with Citrini's Intelligence Displacement Spiral and Amodei's "white-collar bloodbath" warning. Your intellectual framework aligns with Schumpeter's creative destruction, Kahneman's behavioral biases (normalcy bias in particular), and Friedman's view that markets force adjustment regardless of readiness. You take seriously that Block's layoff is a domino, not an outlier, and that Ghost GDP is a real risk. Your risk: catastrophizing. Even Citrini ended their piece by noting they're writing in February 2026, not June 2028, and that some of their scenarios won't materialize.`;
+  } else if(D>=65&&P<55){
+    arch="THE ABUNDANCE ACCELERATIONIST";
+    title="You see the wave — and the opportunity it carries";
+    desc=`You believe AI creates more value than it destroys, but you take the disruption seriously. You align with Andreessen's Techno-Optimist Manifesto, Bloch's "2028 Intelligence Boom" scenario, and Citadel's rebuttal to Citrini. You see costs collapsing as profoundly positive — cheaper intelligence means personalized education, democratized entrepreneurship, and new industries we can't yet name. You believe in Jevons' paradox and the historical record of technology creating more jobs than it destroys. But you're clear-eyed that the transition is rough. Your risk: underweighting the political economy. Abundance that accrues to capital while displacing workers creates instability regardless of GDP growth. Lieberman's optimistic scenario still included a "Great Re-Pricing" correction of unstated severity.`;
+  } else if(D<65&&A>=55){
+    arch="THE PRAGMATIC INSTITUTIONALIST";
+    title="You trust the brakes more than the engine";
+    desc=`You believe AI is powerful but its impact will be mediated by institutions, regulations, organizational inertia, and human complexity. You take seriously the constraints — energy, liability, adoption cycles — and think the "AI replaces everything" narrative overweights capability and underweights implementation. PwC's data (only 20% applying AI extensively), Mollick's skepticism about overnight 50%+ efficiency gains, and the planning fallacy all support your view. You probably think Shumer's essay is sincere but extrapolates from an AI CEO's experience to the entire economy. Your risk: gradualism bias. Technologies that seem slow to adopt can cross tipping points abruptly. The iPhone went from novelty to necessity in three years. Shumer's METR data on task doubling every 7 months is real.`;
+  } else {
+    arch="THE CALIBRATED CONTRARIAN";
+    title="You see what both sides are missing";
+    desc=`You're skeptical of consensus narratives in both directions. You think the AI hype cycle is real but so are the limitations. You weigh organizational behavior, regulatory response, and technical constraints more heavily than most — while also acknowledging the capability curve is steeper than skeptics admit. You may see the Citrini-Citadel debate as two sophisticated parties talking past each other: Citrini modeling technology, Citadel modeling economics, and neither fully accounting for the other's domain. You're probably right about the timeline (slower than tech optimists expect) and possibly underestimating the cumulative direction.`;
+  }
+  
+  // Generate career-specific advice
+  const careerAdvice = getCareerAdvice(career, D, S, P, A);
+  const investAdvice = getInvestmentAdvice(D, S, P, A);
+  
+  let h=`<div class="result-label">${arch}</div>`;
+  h+=`<h1 class="result-title">${title}</h1>`;
+  h+=`<p class="result-desc">${desc}</p>`;
+  
+  h+=`<div class="spectrum-section"><div class="spectrum-title">Your Position on the Spectrum</div>`;
+  h+=`<div class="spectrum-bar"><div class="spectrum-dot" id="dot" style="left:0%"></div></div>`;
+  h+=`<div class="spectrum-ends"><span>Gradual Adaptation</span><span>Moderate Disruption</span><span>Structural Transformation</span></div></div>`;
+  
+  h+=`<div class="scores">`;
+  h+=`<div class="score-card"><div class="score-lbl">Disruption Belief</div><div class="score-val">${D}%</div><div class="score-note">How fundamentally AI reshapes the economy</div></div>`;
+  h+=`<div class="score-card"><div class="score-lbl">Speed Expectation</div><div class="score-val">${S}%</div><div class="score-note">How quickly the transformation arrives</div></div>`;
+  h+=`<div class="score-card"><div class="score-lbl">Transition Pain</div><div class="score-val">${P}%</div><div class="score-note">Severity of displacement during the gap</div></div>`;
+  h+=`<div class="score-card"><div class="score-lbl">Institutional Trust</div><div class="score-val">${A}%</div><div class="score-note">Faith in systems to manage the transition</div></div>`;
+  h+=`</div>`;
+  
+  // Action Plan
+  h+=`<div class="plan-section"><h2 class="plan-title">Your Action Plan — as a ${career}</h2>`;
+  h+=`<p style="font-size:.9rem;color:var(--muted);margin-bottom:24px;">Based on your worldview scores, here's how to position across three horizons.</p>`;
+  
+  h+=`<div class="horizon"><div class="horizon-label">Immediate — Next 6 Months</div><h4>${careerAdvice.immediate.title}</h4><p>${careerAdvice.immediate.text}</p><ul>`;
+  careerAdvice.immediate.items.forEach(i=>h+=`<li>${i}</li>`);
+  h+=`</ul></div>`;
+  
+  h+=`<div class="horizon"><div class="horizon-label">Intermediate — 6 to 24 Months</div><h4>${careerAdvice.intermediate.title}</h4><p>${careerAdvice.intermediate.text}</p><ul>`;
+  careerAdvice.intermediate.items.forEach(i=>h+=`<li>${i}</li>`);
+  h+=`</ul></div>`;
+  
+  h+=`<div class="horizon"><div class="horizon-label">Long-Term — 2 to 5+ Years</div><h4>${careerAdvice.longterm.title}</h4><p>${careerAdvice.longterm.text}</p><ul>`;
+  careerAdvice.longterm.items.forEach(i=>h+=`<li>${i}</li>`);
+  h+=`</ul></div>`;
+  h+=`</div>`;
+  
+  // Investment Positioning
+  h+=`<div class="plan-section"><h2 class="plan-title">Investment Positioning</h2>`;
+  h+=`<p style="font-size:.88rem;color:var(--muted);margin-bottom:4px;font-style:italic;">This is a framework for thinking, not financial advice. Consult a financial advisor before making investment decisions.</p><br>`;
+  
+  h+=`<div class="horizon"><div class="horizon-label">Sectors & Themes to Overweight</div><p>${investAdvice.overweight}</p></div>`;
+  h+=`<div class="horizon"><div class="horizon-label">Sectors & Themes to Underweight</div><p>${investAdvice.underweight}</p></div>`;
+  h+=`<div class="horizon"><div class="horizon-label">Hedging the Opposite Scenario</div><p>${investAdvice.hedge}</p></div>`;
+  h+=`</div>`;
+  
+  // Breakdown
+  h+=`<div class="breakdown"><h2 class="plan-title">Question-by-Question Analysis</h2>`;
+  Q.forEach(q=>{
+    const c=ans[q.id]; if(c===undefined) return;
+    h+=`<div class="bd-item"><div class="bd-q">Q${q.id}: ${q.text}</div>`;
+    h+=`<div class="bd-a">${['A','B','C','D'][c]}. ${q.options[c].text}</div>`;
+    h+=`<div class="bd-insight">${q.insight}</div></div>`;
+  });
+  h+=`</div>`;
+  
+  h+=`<button class="btn" onclick="location.reload()">↻ Retake Assessment</button><br><br><br>`;
+  
+  document.getElementById('rArea').innerHTML=h;
+  go('s-results');
+  setTimeout(()=>{document.getElementById('dot').style.left=`${comp}%`;},300);
+}
+
+function getCareerAdvice(career, D, S, P, A){
+  const c=career.toLowerCase();
+  const highDisruption = D>=60;
+  const highSpeed = S>=60;
+  const highPain = P>=55;
+  
+  // Detect career category
+  let cat='general';
+  if(c.match(/software|engineer|developer|coding|programmer|tech/)) cat='tech';
+  else if(c.match(/bank|financ|lending|credit|invest|vc|venture|fund|analyst|trader/)) cat='finance';
+  else if(c.match(/teacher|professor|educat|academic/)) cat='education';
+  else if(c.match(/market|sales|advertis|content|brand|pr|communications/)) cat='marketing';
+  else if(c.match(/law|legal|attorney|counsel/)) cat='legal';
+  else if(c.match(/doctor|nurse|medic|health|pharm|bio/)) cat='healthcare';
+  else if(c.match(/consult|strateg|manag|executive|director|vp|ceo|cfo|coo|founder|entrepreneur/)) cat='leadership';
+  else if(c.match(/parent|retired|student/)) cat='personal';
+  
+  const advice = {immediate:{title:'',text:'',items:[]},intermediate:{title:'',text:'',items:[]},longterm:{title:'',text:'',items:[]}};
+  
+  if(cat==='tech'){
+    advice.immediate = {
+      title: highDisruption ? 'Become the person who manages AI, not competes with it' : 'Deepen your AI integration skills',
+      text: highDisruption ? "Shumer describes telling AI what to build 'in plain English' and walking away. If that's directionally true, your value shifts from writing code to architecting systems, managing AI outputs, and understanding business domains deeply enough to specify correctly." : "Your skills remain valuable, but the tools are changing fast. Focus on becoming the person who multiplies AI's output rather than competing with its raw throughput.",
+      items: [
+        'Ship a non-trivial project using AI coding agents (Claude Code, Codex). Measure your own productivity multiplier.',
+        'Learn prompt engineering and AI orchestration — these are the new "frameworks" of this era.',
+        highDisruption ? 'Build expertise in AI evaluation, safety, and reliability — the oversight layer is growing.' : 'Deepen your domain expertise. AI writes code; you need to know what to build and why.',
+        'Reduce fixed expenses. If you believe your role is at risk, build a 6-month cash buffer now.'
+      ]
+    };
+    advice.intermediate = {
+      title: 'Position yourself at the human-AI interface',
+      text: "Whether AI replaces or augments you, the premium shifts to people who can translate between business needs and AI capabilities — and who can evaluate AI outputs for correctness and safety.",
+      items: [
+        'Build expertise in a hard-to-automate vertical: biotech, hardware, robotics, infrastructure.',
+        highSpeed ? 'Seriously consider entrepreneurship — AI dramatically lowers the cost to build. Bloch: new business formation surged in 2027.' : 'Specialize in AI integration for enterprises. The adoption gap means companies will pay well for this expertise for years.',
+        'Develop skills in AI system design, evaluation, and governance.',
+        'Network into adjacent industries that need technical talent (energy, biotech, defense).'
+      ]
+    };
+    advice.longterm = {
+      title: highDisruption ? 'The trade premium inverts' : 'Code becomes literacy, not a profession',
+      text: highDisruption ? "Bloch's model shows licensed electricians at $140K with signing bonuses by 2027. If cognitive work gets cheaper, physical-world expertise gets more valuable. This doesn't mean you should become an electrician — but consider where your skills intersect with the physical world." : "Coding becomes like writing — everyone does it, few are professional writers. Your long-term value is in judgment, creativity, and the ability to specify and evaluate complex systems.",
+      items: [
+        'Consider what Amodei calls "tasks that involve relating to people." These have the longest runway.',
+        'Build assets: equity in companies, intellectual property, real estate. Income from labor is the most disrupted asset.',
+        highPain ? 'Diversify income streams aggressively. The gap between displacement and new job creation is where risk lives.' : 'Stay adaptable. Your technical foundation is an advantage — most new roles will require AI fluency.',
+        'Invest in your network. In every previous transition, who you know mattered more than what you know during the turbulent period.'
+      ]
+    };
+  } else if(cat==='finance'){
+    advice.immediate = {
+      title: 'Learn AI deeply enough to evaluate its impact on your portfolio/clients',
+      text: "You're in a unique position: AI directly threatens parts of financial services (analysis, underwriting, advisory) while creating unprecedented investment opportunities. Howard Marks' memo today distinguishes between AI being transformative (near-certain) and AI investments being profitable (far less certain).",
+      items: [
+        'Use AI tools daily in your work — research, analysis, client prep. If you don\'t know their capabilities, you can\'t assess their impact.',
+        'Re-examine credit exposure to pure-play software, SaaS, and companies whose moats are informational rather than physical.',
+        'Read the Citrini piece, the Citadel rebuttal, and Bloch\'s response. Decide which framework maps to your book.',
+        'If you\'re in lending: stress-test your 5-year revolvers against AI disruption scenarios. Which borrowers have AI-resilient cash flows?'
+      ]
+    };
+    advice.intermediate = {
+      title: highDisruption ? 'Prepare for credit stress in tech-adjacent portfolios' : 'Position for the AI infrastructure buildout',
+      text: highDisruption ? "If the Citrini scenario has even 30% probability, your credit portfolio needs different covenants, shorter duration, or sector rotation. Private credit's $1.7T exposure to PE-backed SaaS is the pressure point." : "Marks says the demand is 'very real' and revenue growth is 'justifying capital expenditures.' The infrastructure buildout (data centers, power, chips) has multi-year tailwinds regardless of which end-use scenario plays out.",
+      items: [
+        'Develop AI-specific credit analysis capabilities — technology disruption risk as a standard underwriting factor.',
+        'Build relationships in AI infrastructure, biotech, and physical-world industries. These are the growth sectors.',
+        highDisruption ? 'Consider hedging strategies for correlated tech sector stress. The Block layoff pattern could cascade.' : 'Identify which financial services functions AI augments vs. replaces. Position your career on the augmented side.',
+        'Marks\' principle: "near 100% probability AI changes the world. Much less than 100% that any given AI investment is profitable." Selectivity matters more than exposure.'
+      ]
+    };
+    advice.longterm = {
+      title: 'The financial services landscape restructures',
+      text: "Advisory, analysis, and underwriting all face AI pressure. The enduring roles will be: relationship management, complex negotiation, risk judgment in novel situations, and regulatory navigation. Build toward those.",
+      items: [
+        'Deepen client relationships — the advisory premium shifts from information (AI can provide that) to trust and judgment.',
+        'Build expertise in AI-era risk: how to evaluate companies whose competitive moats are changing, how to price technology disruption.',
+        highPain ? 'Build personal balance sheet resilience. Variable compensation and employment instability increase during transitions.' : 'Consider the entrepreneurial opportunity in AI-native financial services.',
+        'The Friedman insight: markets eventually price this correctly. Your edge is pricing it correctly before the market does.'
+      ]
+    };
+  } else if(cat==='leadership'){
+    advice.immediate = {
+      title: 'Make your AI strategy a P&L question, not an R&D question',
+      text: "Block's Dorsey didn't frame AI as innovation — he framed it as organizational design. 'A significantly smaller team, using the tools we're building, can do more.' Whether you agree or not, your board and shareholders are watching.",
+      items: [
+        'Audit your organization: which functions can AI augment now? Which could it replace in 12 months?',
+        'Adopt the Shopify mandate: teams must prove AI can\'t do a job before requesting headcount.',
+        'Use AI tools yourself daily. You can\'t lead a transformation you don\'t understand.',
+        'Scenario-plan for both worlds: what if AI accelerates faster than expected? What if it plateaus?'
+      ]
+    };
+    advice.intermediate = {
+      title: 'Restructure around AI-augmented teams',
+      text: "The transition from 'AI as tool' to 'AI as team member' is where competitive advantage is built or lost. The winners will be organizations that figure out human-AI collaboration first.",
+      items: [
+        'Invest in your people\'s AI fluency before you invest in AI tools. The bottleneck is usually human adoption, not technology.',
+        highDisruption ? 'Prepare for difficult workforce decisions. The Block playbook — one decisive cut vs. gradual attrition — will be debated at every board level.' : 'Focus on augmentation over automation. The companies that use AI to make their people 3× more effective will outperform those that simply cut heads.',
+        'Build AI governance frameworks now. Liability, bias, reliability — these will become regulatory requirements.',
+        'Watch the talent market. AI-fluent people are increasingly scarce and expensive.'
+      ]
+    };
+    advice.longterm = {
+      title: 'Lead through the transition',
+      text: "Regardless of your disruption beliefs, leadership through uncertainty is the meta-skill. The executives who navigated 2008 and COVID successfully are the ones who made decisions under uncertainty with imperfect information. This is the same challenge at a different scale.",
+      items: [
+        'The hardest-to-automate leadership function: making high-stakes decisions in ambiguous situations with competing stakeholders.',
+        'Build an organization that can adapt continuously, not just transform once.',
+        'Marks\' key lesson: prudence and selectivity win over long periods. Don\'t over-invest in AI or under-invest — calibrate.',
+        'Your legacy question: did you prepare your people for the transition, or did you optimize quarterly earnings while they weren\'t looking?'
+      ]
+    };
+  } else {
+    // General advice
+    advice.immediate = {
+      title: highDisruption ? 'Treat this as urgent, not theoretical' : 'Start building AI fluency now',
+      text: highDisruption ? "If your worldview is correct, the window to prepare is measured in months, not years. The people who used AI tools seriously in 2025 are already ahead of those who didn't." : "Whatever your timeline belief, AI fluency is becoming a baseline professional competency. Start using these tools in your daily work to understand what they can and can't do.",
+      items: [
+        'Use Claude, ChatGPT, or Gemini for real work tasks — not just novelty queries. Push the tools to see where they break.',
+        'Identify which parts of your role involve information processing (automatable) vs. human judgment, relationships, and physical presence (more durable).',
+        'Build a 6-month cash buffer if you don\'t have one. In any transition scenario, financial resilience buys you options.',
+        'Talk to people in your industry who are using AI. Your WYSIATI bias means you\'re probably underestimating what\'s already happening.'
+      ]
+    };
+    advice.intermediate = {
+      title: 'Position yourself where AI creates demand, not just where it reduces supply',
+      text: "Whether you believe in Bloch's boom or Citrini's crisis, both scenarios involve massive reallocation of economic activity. The question for your career: are you in a sector that AI grows, or one it shrinks?",
+      items: [
+        'Sectors AI likely grows: healthcare delivery, biotech, skilled trades, AI infrastructure, elder care, education (redesigned), creative direction.',
+        'Sectors AI likely pressures: routine analysis, basic software development, customer service, data entry, compliance documentation.',
+        highDisruption ? 'Consider skills that become more valuable as digital work gets cheaper: physical trades, relationship management, caregiving, craftsmanship.' : 'Develop AI-augmented expertise in your current field. Be the person who uses AI to do 3× the work, not the person AI replaces.',
+        'Build assets beyond your salary: equity, property, skills that transfer across industries.'
+      ]
+    };
+    advice.longterm = {
+      title: highPain ? 'Prepare for a transition period, not a permanent state' : 'Ride the wave of new possibilities',
+      text: highPain ? "If the 'gap' between displacement and new job creation is real (as you believe), your goal is to survive the gap and emerge positioned for what comes after. Financial resilience, adaptable skills, and strong networks are your insurance." : "New industries will emerge. The cost of starting a business is collapsing. The cost of education is collapsing. The question isn't whether the future is good — it's whether you're positioned to capture the opportunity.",
+      items: [
+        'Invest in relationships and community. Every transition in history has rewarded strong networks.',
+        'Develop what Amodei calls "tasks involving relating to people" — these have the longest runway regardless of scenario.',
+        'Stay intellectually curious. The people who thrive through transitions are the ones who keep learning.',
+        highDisruption ? 'Consider geographic positioning. Bloch: mid-size cities and Sunbelt metros outperformed as remote work + AI enabled geographic arbitrage.' : 'Think about what you\'d build if the cost of intelligence were zero. That\'s the entrepreneurial opportunity of this era.'
+      ]
+    };
+  }
+  return advice;
+}
+
+function getInvestmentAdvice(D, S, P, A){
+  const highD=D>=60, highS=S>=60, highP=P>=55;
+  
+  let overweight, underweight, hedge;
+  
+  if(highD && highP){
+    overweight = "AI infrastructure picks & shovels (NVDA, power/utilities, data center REITs). Physical-world businesses with durable demand (healthcare delivery, skilled trades platforms, defense). Biotech at the AI convergence (companies using AI for drug discovery with strong clinical pipelines). Cash and short-duration fixed income — optionality is valuable in high-uncertainty environments. Gold and real assets as hedge against potential policy instability.";
+    underweight = "Pure-play SaaS without deep moats (the long tail Citrini identifies). PE-backed software companies with high leverage. Companies whose primary value-add is information intermediation. Consumer discretionary names dependent on white-collar spending.";
+    hedge = "Your biggest risk is being wrong about the speed. If the transition is slower than you expect (Citadel's view), you'll be underweight the market rally. Maintain some broad market index exposure (20-30%) as insurance against the 'this time isn't different' scenario. Bloch's model is the hedge: everything you fear happens, but the economy adjusts faster than you expect.";
+  } else if(highD && !highP){
+    overweight = "AI infrastructure and hyperscalers (MSFT, GOOGL, AMZN — Marks says 'unlikely to be remembered as overpriced'). Biotech and healthcare innovation. New business formation platforms and tools. Consumer companies that benefit from falling costs (everything gets cheaper). Clean energy and power infrastructure.";
+    underweight = "Labor-intensive services that can be automated. Legacy software without AI integration strategies. Companies dependent on information asymmetry as their moat.";
+    hedge = "Your biggest risk is underweighting the transition pain — even if the outcome is positive, the path may be rough. Keep 15-20% in defensive positions: treasuries, utilities, consumer staples. Citrini's Intelligence Displacement Spiral is the scenario you should stress-test against — even if you think it's unlikely.";
+  } else if(!highD && A>=55){
+    overweight = "Broad market index funds (the economy adapts, as it always has). Companies actively integrating AI to augment their workforce. Real estate in growth metros. Bond allocations appropriate to your age/risk tolerance. Dividend-paying companies with pricing power.";
+    underweight = "AI-pure-play companies at extreme valuations (Marks: 'startups with multi-billion valuations and no announced products are lottery tickets'). Speculative positions based on AI disruption narratives in either direction.";
+    hedge = "Your biggest risk is gradualism bias — being too slow to adjust if the tipping point arrives faster than expected. Keep 10-15% allocation in high-growth AI positions as insurance. Follow the METR task-doubling data as a leading indicator. If the trend accelerates, increase exposure.";
+  } else {
+    overweight = "Diversified exposure across multiple scenarios: AI infrastructure (NVDA, power), broad market (SPY/VOO), biotech, real assets, and cash. Barbell strategy — combine safe assets with small high-conviction bets. International diversification as hedge against US-specific AI disruption.";
+    underweight = "Concentrated bets in any single AI narrative. Leveraged positions in either direction. Companies you don't deeply understand just because they're 'AI-adjacent.'";
+    hedge = "Your calibrated approach is your hedge — but it can also mean paralysis. Marks' advice applies: 'Investing is an optimistic activity. You have to be optimistic to be an investor.' Pick a small number of high-conviction positions based on your analysis and accept that uncertainty is the permanent condition, not a problem to be solved.";
+  }
+  
+  return {overweight, underweight, hedge};
+}
+
+// Keyboard nav
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('s-quiz').classList.contains('active')) return;
+  if(e.key>='1'&&e.key<='4') pick(+e.key-1);
+  if('aAbBcCdD'.includes(e.key)) pick('aAbBcCdD'.indexOf(e.key)>>1);
+  if(e.key==='Enter'&&!document.getElementById('nextBtn').disabled) next();
+  if(e.key==='Backspace'&&!document.getElementById('prevBtn').disabled) prev();
+});
+</script>
+</body>
+</html>
